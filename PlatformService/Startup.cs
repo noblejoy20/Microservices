@@ -20,17 +20,25 @@ namespace PlatformService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        
+        public IConfiguration Configuration { get; }
+        private readonly IWebHostEnvironment _env;
+        public Startup(IConfiguration configuration,IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
-        public IConfiguration Configuration { get; }
-
-        
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(options=>options.UseInMemoryDatabase("InMem"));
+            if(_env.IsProduction()){
+                System.Console.WriteLine("---> Using SqlServer");
+                services.AddDbContext<AppDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("PlatformsConn")));
+            }else{
+                System.Console.WriteLine("---> Using InMemDB");
+                services.AddDbContext<AppDbContext>(options=>options.UseInMemoryDatabase("InMem"));
+            }
+            
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>
