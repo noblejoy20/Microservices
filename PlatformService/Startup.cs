@@ -78,7 +78,7 @@ namespace PlatformService
                 endpoints.MapControllers();
             });
 
-            app.PrepPopulation();
+            app.PrepPopulation(env.IsProduction());
         }
     }
 }
